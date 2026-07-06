@@ -1,48 +1,46 @@
-# browser-storage-check
+# Browser Storage Check
 
-> Check frontend storage usage for sensitive data and expiry gaps.
+<p align="center">
+  <img src="assets/readme-cover.svg" alt="Browser Storage Check cover" width="100%" />
+</p>
 
-## Review card Overview
+![stack](https://img.shields.io/badge/stack-Python-7c3aed?style=flat-square) ![python](https://img.shields.io/badge/python-3.11-0891b2?style=flat-square) ![license](https://img.shields.io/badge/license-MIT-b45309?style=flat-square) ![ci](https://img.shields.io/badge/ci-GitHub%20Actions-be185d?style=flat-square)
 
-Check frontend storage usage for sensitive data and expiry gaps. It solves review drift by turning plain-text plans into deterministic CI-friendly findings.
+Check frontend storage usage for sensitive data and expiry gaps.
 
-## Input Contract
+## The short version
 
-Accepts browser storage review. The reader supports plain text, JSON, JSONL, and CSV so the
-tool can fit into scripts, CI jobs, and review exports.
+`browser-storage-check` is intentionally small: feed it a file, get deterministic findings, and decide whether the result should block a merge or just guide cleanup.
 
-## CLI Walkthrough
+## Rule surface
+
+| Rule | Severity | What it catches |
+| --- | --- | --- |
+| `token-storage` | high | token stored in localStorage |
+| `no-expiry` | medium | expiry missing |
+| `pii-storage` | low | PII stored client-side |
+
+## Usage
 
 ```bash
 python -m pip install -e ".[dev]"
 browser-storage-check examples/sample.txt
 browser-storage-check examples/sample.txt --json --fail-on medium
-python -m browser_storage_check --help
 ```
 
-## Rule Surface
+## Useful defaults
 
-| Rule | Severity | Meaning |
-|---|---:|---|
-| `token-storage` | high | token stored in localStorage |
-| `no-expiry` | medium | expiry missing |
-| `pii-storage` | low | PII stored client-side |
+| Option | Reason |
+| --- | --- |
+| `--json` | machine-readable output for scripts |
+| `--fail-on medium` | stricter CI gate when warnings matter |
+| `--format auto` | let the reader detect text, CSV, JSON, or JSONL |
 
-## Validation Notes
+## Local checks
 
 ```bash
+python -m pip install -e ".[dev]"
 ruff check .
 pytest
 python -m browser_storage_check --help
 ```
-
-Example risky input:
-
-```text
-localStorage token expiry none pii true
-```
-
-Architecture: `cli.py` handles arguments, `core.py` reads and evaluates records, and
-`rules.py` keeps the project-specific policy explicit.
-
-License: MIT.
